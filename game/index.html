@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사과게임 (Make 10)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <div class="title-group">
+                <h1>Apple Game</h1>
+                <p>사과를 드래그해서 합을 10으로 만드세요</p>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <span class="label">점수</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="stat-box">
+                    <span class="label">시간</span>
+                    <span id="timer">120</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="board-wrapper">
+            <div id="game-board"></div>
+            <div id="selection-box"></div>
+
+            <!-- Start Screen Overlay -->
+            <div id="start-screen">
+                <h2>사과게임</h2>
+                <p>숫자의 합이 10이 되도록 드래그 하세요!</p>
+                <div class="example">🍎 2 + 8 = 10 🍎</div>
+                <button id="start-btn-overlay">게임 시작</button>
+            </div>
+
+            <!-- Game Over Screen Overlay -->
+            <div id="game-over-screen" class="hidden">
+                <h2>Game Over!</h2>
+                <p>최종 점수: <span id="final-score">0</span>점</p>
+                <button id="restart-btn">다시 하기</button>
+            </div>
+        </div>
+        
+    </div>
+    <script src="main.js"></script>
+</body>
+</html>

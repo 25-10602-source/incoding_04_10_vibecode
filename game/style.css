@@ -1,0 +1,272 @@
+:root {
+    --bg-gradient: linear-gradient(135deg, #ffd3d3 0%, #fff0f0 100%);
+    --primary-color: #e84118;
+    --primary-hover: #c23616;
+    --text-color: #2f3542;
+    --apple-bg: #ff4757;
+    --apple-text: #ffffff;
+    --selection-border: rgba(53, 142, 255, 0.8);
+    --selection-bg: rgba(53, 142, 255, 0.2);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-gradient);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-color);
+    user-select: none;
+}
+
+.game-container {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(15px);
+    border-radius: 28px;
+    padding: 40px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.1), inset 0 0 0 2px rgba(255,255,255,0.8);
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title-group h1 {
+    margin: 0;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--primary-color);
+    letter-spacing: -1px;
+}
+
+.title-group p {
+    margin: 5px 0 0 0;
+    font-size: 14px;
+    color: #747d8c;
+    font-weight: 600;
+}
+
+.stats {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #f1f2f6;
+    padding: 10px 20px;
+    border-radius: 16px;
+    min-width: 90px;
+}
+
+.label {
+    font-size: 13px;
+    color: #747d8c;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+#score, #timer {
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--primary-color);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+}
+
+button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    border-radius: 100px;
+    font-size: 20px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 8px 20px rgba(232, 65, 24, 0.3);
+}
+
+button:hover {
+    transform: translateY(-4px) scale(1.03);
+    background: var(--primary-hover);
+    box-shadow: 0 12px 25px rgba(232, 65, 24, 0.4);
+}
+
+button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+.board-wrapper {
+    position: relative;
+    width: fit-content;
+    border-radius: 20px;
+    background: #ffffff;
+    padding: 15px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.05);
+    overflow: hidden; /* For overlay corners */
+}
+
+/* 17x10 grid */
+#game-board {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(17, 45px);
+    grid-template-rows: repeat(10, 45px);
+    gap: 8px;
+    touch-action: none; 
+}
+
+/* CSS 사과 모양 스타일링 */
+.apple {
+    width: 42px;
+    height: 40px;
+    background: radial-gradient(circle at 15px 15px, #ff7675, #d63031);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 900;
+    font-size: 22px;
+    color: var(--apple-text);
+    box-shadow: 0 6px 10px rgba(214, 48, 49, 0.2), inset 0px -4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    pointer-events: none; 
+    margin-top: 5px; /* 꼭지와 잎의 공간 확보 */
+}
+
+/* 꼭지(줄기) */
+.apple::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    width: 3px;
+    height: 10px;
+    background: #5c4033;
+    border-radius: 2px;
+    transform: translateX(-50%) rotate(10deg);
+}
+
+/* 잎사귀 */
+.apple::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    width: 14px;
+    height: 8px;
+    background: #2ed573;
+    border-radius: 0 10px 0 10px;
+    transform: translateX(1px) rotate(-15deg);
+    box-shadow: inset 1px -1px 2px rgba(0,0,0,0.2);
+}
+
+/* 황금 사과 (보너스 사과 - 점수 추가) */
+.apple.bonus {
+    background: radial-gradient(circle at 15px 15px, #ffeaa7, #fdcb6e);
+    box-shadow: 0 6px 15px rgba(253, 203, 110, 0.5), inset 0px -4px 8px rgba(0,0,0,0.1);
+    color: #d35400;
+}
+.apple.bonus::after {
+    background: #00b894; /* 잎사귀 색상 변경 */
+}
+.apple.bonus::before {
+    background: #8e44ad; /* 꼭지 색상 변경 */
+}
+
+/* 선택되었을 때(드래그 중) 파란색 효과 */
+.apple.selected {
+    transform: scale(0.85);
+    background: radial-gradient(circle at 15px 15px, #74b9ff, #0984e3);
+    box-shadow: 0 4px 15px rgba(9, 132, 227, 0.5);
+    color: white;
+}
+.apple.selected::after {
+    background: #00cec9;
+}
+
+.apple.cleared {
+    opacity: 0;
+    transform: scale(0) rotate(90deg);
+}
+
+#selection-box {
+    position: absolute;
+    border: 3px solid var(--selection-border);
+    background: var(--selection-bg);
+    border-radius: 8px;
+    pointer-events: none; 
+    display: none;
+    z-index: 5;
+}
+
+/* Start Screen & Game Over Overlay */
+#start-screen, #game-over-screen {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.85);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(8px);
+    z-index: 10;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; backdrop-filter: blur(0px); }
+    to { opacity: 1; backdrop-filter: blur(8px); }
+}
+
+#start-screen h2, #game-over-screen h2 {
+    font-size: 50px;
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-weight: 900;
+}
+
+#start-screen p, #game-over-screen p {
+    font-size: 20px;
+    margin-bottom: 25px;
+    color: #2f3542;
+    font-weight: 600;
+}
+
+.example {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 40px;
+    color: #d63031;
+    background: #ffefef;
+    padding: 10px 20px;
+    border-radius: 12px;
+}
+
+#game-over-screen #final-score {
+    color: var(--primary-color);
+    font-size: 32px;
+    font-weight: 900;
+}
