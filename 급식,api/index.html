@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>오늘의 급식 - 자운고등학교</title>
+    <!-- 폰트 적용 (Pretendard & Outfit) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #3b82f6;
+            --accent: #f43f5e;
+            --background: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.6);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', 'Outfit', sans-serif;
+            background-color: var(--background);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Ambient Background Mesh Gradient */
+        .ambient-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 50% 80%, rgba(244, 63, 94, 0.1), transparent 30%);
+            filter: blur(60px);
+            animation: pulse-bg 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes pulse-bg {
+            0% { transform: scale(1); }
+            100% { transform: scale(1.1); }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem;
+            z-index: 1;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: slide-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .date-picker-wrap {
+            position: relative;
+            display: inline-block;
+        }
+
+        .date-picker {
+            font-family: 'Outfit', 'Pretendard', sans-serif;
+            color: var(--primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            background: rgba(139, 92, 246, 0.1);
+            padding: 0.5rem 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.1);
+            cursor: pointer;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .date-picker::-webkit-calendar-picker-indicator {
+            filter: invert(1) opacity(0.8) sepia(1) hue-rotate(200deg) saturate(300%);
+            cursor: pointer;
+        }
+
+        .date-picker:hover, .date-picker:focus {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: rgba(139, 92, 246, 0.4);
+        }
+
+        .allergy {
+            font-size: 0.8rem;
+            color: var(--accent);
+            background: rgba(244, 63, 94, 0.15);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+            font-weight: 600;
+            display: inline-block;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+
+        .meal-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Glassmorphism Card */
+        .meal-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .meal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Animation delays for multiple cards */
+        .meal-card:nth-child(1) { animation-delay: 0.1s; }
+        .meal-card:nth-child(2) { animation-delay: 0.2s; }
+        .meal-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .meal-type {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .meal-type h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .calories {
+            font-family: 'Outfit', sans-serif;
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .dish-list {
+            list-style: none;
+        }
+
+        .dish-item {
+            padding: 0.5rem 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+        }
+
+        .dish-item::before {
+            content: '•';
+            color: var(--primary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+            margin-right: 0.5rem;
+        }
+
+        .loading, .error-message, .no-data {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            backdrop-filter: blur(16px);
+            width: 100%;
+            grid-column: 1 / -1;
+            animation: fade-in 0.5s ease;
+        }
+
+        .loader {
+            width: 48px;
+            height: 48px;
+            border: 5px solid rgba(139, 92, 246, 0.2);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes slide-down {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fade-in-up {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            h1 { font-size: 2rem; }
+            .container { padding: 1.5rem; }
+            .meal-card { padding: 1.5rem; }
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="ambient-bg"></div>
+    
+    <div class="container">
+        <header>
+            <h1>오늘의 급식</h1>
+            <div class="date-picker-wrap">
+                <input type="date" id="datePicker" class="date-picker" />
+            </div>
+        </header>
+
+        <main id="mealContainer" class="meal-container">
+            <div class="loading">
+                <span class="loader"></span>
+                <p>맛있는 급식 정보를 가져오고 있습니다...</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initDatePicker();
+        });
+
+        function initDatePicker() {
+            const datePicker = document.getElementById('datePicker');
+            const now = new Date();
+            
+            // Format YYYY-MM-DD for input[type="date"]
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const todayStr = `${year}-${month}-${day}`;
+            
+            datePicker.value = todayStr;
+            
+            // 최초로드 시 오늘 급식 가져오기
+            fetchMealData(todayStr.replace(/-/g, ''));
+
+            // 날짜 변경 시 급식 정보 다시 가져오기
+            datePicker.addEventListener('change', (e) => {
+                const selectedDate = e.target.value.replace(/-/g, '');
+                if(selectedDate) {
+                    fetchMealData(selectedDate);
+                }
+            });
+        }
+
+        async function fetchMealData(dateStr) {
+            const container = document.getElementById('mealContainer');
+            
+            // 서울특별시교육청(B10), 자운고등학교(7010703)
+            const url = `https://open.neis.go.kr/hub/mealServiceDietInfo?Type=json&ATPT_OFCDC_SC_CODE=B10&SD_SCHUL_CODE=7010703&MLSV_YMD=${dateStr}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('네트워크 응답이 올바르지 않습니다.');
+                const data = await response.json();
+
+                container.innerHTML = ''; // 초기 로더 제거
+
+                if (data.mealServiceDietInfo) {
+                    const meals = data.mealServiceDietInfo[1].row;
+                    
+                    meals.forEach(meal => {
+                        const mealType = meal.MMEAL_SC_NM || '급식';
+                        const calories = meal.CAL_INFO || '';
+                        const dishesRaw = meal.DDISH_NM || '';
+                        
+                        // 데이터 정제
+                        // 1. <br/> 을 줄바꿈으로
+                        let dishesClean = dishesRaw.replace(/<br\/>/gi, '\n');
+                        
+                        // 배열로 변환
+                        const dishList = dishesClean.split('\n')
+                            .map(item => item.trim())
+                            .filter(item => item.length > 0);
+
+                        // 카드 렌더링
+                        const card = document.createElement('div');
+                        card.className = 'meal-card';
+                        
+                        const typeHeader = document.createElement('div');
+                        typeHeader.className = 'meal-type';
+                        typeHeader.innerHTML = `
+                            <h2>${mealType}</h2>
+                            <span class="calories">${calories}</span>
+                        `;
+                        
+                        const ALLERGY_MAP = {
+                            '1': '난류', '2': '우유', '3': '메밀', '4': '땅콩', '5': '대두',
+                            '6': '밀', '7': '고등어', '8': '게', '9': '새우', '10': '돼지고기',
+                            '11': '복숭아', '12': '토마토', '13': '아황산류', '14': '호두',
+                            '15': '닭고기', '16': '쇠고기', '17': '오징어', '18': '조개류', '19': '잣'
+                        };
+
+                        const ul = document.createElement('ul');
+                        ul.className = 'dish-list';
+                        
+                        dishList.forEach(dish => {
+                            // 알러지 정보 분리: 메뉴명 뒤에 붙은 (1.2.3.) 또는 1.2.3. 형태 추출
+                            const match = dish.match(/(.*?)([\(\s]*[\d\.]+[ \)]*)$/);
+                            let dishName = dish;
+                            let allergyInfo = '';
+
+                            if (match && match[2].trim().match(/[\d\.]+/)) {
+                                dishName = match[1].trim();
+                                const rawAllergies = match[2].replace(/[\(\)]/g, '').trim(); // 괄호 제거
+                                
+                                // 숫자를 글자로 변환
+                                const numList = rawAllergies.split('.').filter(n => n.trim() !== '');
+                                allergyInfo = numList.map(n => ALLERGY_MAP[n.trim()] || n).join(', ');
+                            }
+
+                            const li = document.createElement('li');
+                            li.className = 'dish-item';
+                            li.innerHTML = `<span class="dish-name">${dishName}</span>`;
+                            
+                            if (allergyInfo) {
+                                li.innerHTML += `<span class="allergy" title="알레르기 유발물질">${allergyInfo}</span>`;
+                            }
+                            
+                            ul.appendChild(li);
+                        });
+
+                        card.appendChild(typeHeader);
+                        card.appendChild(ul);
+                        container.appendChild(card);
+                    });
+
+                } else if (data.RESULT && data.RESULT.CODE === "INFO-200") {
+                    const formattedDateStr = `${dateStr.slice(0,4)}.${dateStr.slice(4,6)}.${dateStr.slice(6,8)}`;
+                    container.innerHTML = `
+                        <div class="no-data">
+                            선택하신 날짜(${formattedDateStr})는 예정된 급식 정보가 없습니다. 🍽️
+                        </div>
+                    `;
+                } else {
+                    throw new Error('데이터 파싱 오류');
+                }
+
+            } catch (error) {
+                console.error('Fetch error:', error);
+                container.innerHTML = `
+                    <div class="error-message">
+                        데이터를 불러오는데 실패했습니다. 잠시 후 다시 시도해주세요.<br>
+                        <span style="font-size:0.875rem; color:var(--text-muted); margin-top:10px; display:inline-block">
+                            사유: ${error.message}
+                        </span>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
